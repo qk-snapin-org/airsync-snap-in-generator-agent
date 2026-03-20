@@ -1,0 +1,23 @@
+{
+  "name": "snapin-builder",
+  "version": "2.0.0",
+  "description": "Build complete DevRev AirSync snap-ins from a single prompt. Scaffolds from the official template, researches external APIs, validates metadata, and generates deployable TypeScript projects using 9 specialized MCP tools.",
+  "author": {
+    "name": "DevRev AirSync Team"
+  },
+  "license": "MIT",
+  "keywords": [
+    "devrev",
+    "airsync",
+    "airdrop",
+    "snap-in",
+    "connector",
+    "adaas"
+  ],
+  "commands": [
+    "./commands/build-snapin.md",
+    "./commands/generate-metadata.md",
+    "./commands/search-guide.md"
+  ],
+  "skills": "./skills/"
+}
