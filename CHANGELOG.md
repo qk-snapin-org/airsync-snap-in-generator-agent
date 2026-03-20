@@ -2,6 +2,11 @@
 
 All notable changes to the snapin-builder plugin.
 
+## [2.2.0] - 2026-03-20
+
+### Changed
+- SKILL.md anti-patterns: added "NEVER force offset-based APIs into nextPageToken with string conversion".
+
 ## [2.1.0] - 2026-03-20
 
 ### Added

@@ -133,3 +133,4 @@ Use the DevRev AirSync MCP (`chef-cli`) to:
 - NEVER emit `DataExtractionProgress` and return after each entity or each page — only the `onTimeout` handler emits Progress
 - NEVER duplicate error handling per entity — use the shared `emitError()` method
 - NEVER copy-paste the same pagination/error/state block for each entity — extract into methods
+- NEVER force offset-based APIs into `nextPageToken: string` with parseInt/toString — use `offset: number` in state for offset APIs, `nextPageToken: string` for cursor APIs. Match the state shape to the API's pagination type.
