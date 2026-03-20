@@ -1,0 +1,17 @@
+{
+  "name": "qk-snapin-marketplace",
+  "owner": {
+    "name": "DevRev AirSync Team"
+  },
+  "plugins": [
+    {
+      "name": "snapin-builder",
+      "source": {
+        "source": "github",
+        "repo": "qk-snapin-org/airsync-snap-in-generator-agent"
+      },
+      "description": "Build complete DevRev AirSync snap-ins from a single prompt.",
+      "version": "2.0.0"
+    }
+  ]
+}

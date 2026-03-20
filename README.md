@@ -20,28 +20,25 @@ This plugin provides the **workflow** (commands + skills). You also need **two M
 **1. Install the plugin** (provides `/build-snapin`, `/generate-metadata`, `/search-guide`)
 
 ```bash
-/plugin install --github your-org/snapin-builder-plugin
+# Add the marketplace
+/plugin marketplace add qk-snapin-org/airsync-snap-in-generator-agent
+
+# Install the plugin
+/plugin install snapin-builder@qk-snapin-marketplace
 ```
 
-**2. Add the Snap-in Builder MCP server** (provides 9 tools)
-
-Add to your `~/.claude/settings.json`:
-
-```json
-{
-  "mcpServers": {
-    "snapin-builder": {
-      "type": "streamable-http",
-      "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp"
-    }
-  }
-}
-```
-
-**3. Add the DevRev AirSync MCP** (provides mapping validation)
+**2. Add the Snap-in Builder MCP server** (provides 9 tools, project-scoped)
 
 ```bash
-claude mcp add airsync chef-cli mcp initial-mapping
+claude mcp add snapin-builder --transport http -s project <MCP_SERVER_URL>/mcp
+```
+
+> Ask the team for the current MCP server URL.
+
+**3. Add the DevRev AirSync MCP** (provides mapping validation, project-scoped)
+
+```bash
+claude mcp add airsync -s project chef-cli mcp initial-mapping
 ```
 
 Then use: `/build-snapin Wrike`
@@ -55,7 +52,7 @@ Add both MCP servers to your project's `.cursor/mcp.json`:
   "mcpServers": {
     "snapin-builder": {
       "type": "streamable-http",
-      "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp"
+      "url": "<MCP_SERVER_URL>/mcp"
     },
     "AirSync": {
       "command": "chef-cli",
@@ -65,7 +62,7 @@ Add both MCP servers to your project's `.cursor/mcp.json`:
 }
 ```
 
-> Cursor users get the MCP tools but not the slash commands or skill workflow. They call tools like `build_snapin_guide` and `validate_metadata` directly.
+> Ask the team for the current MCP server URL. Cursor users get the MCP tools but not the slash commands or skill workflow. They call tools like `build_snapin_guide` and `validate_metadata` directly.
 
 ## Available Commands
 
@@ -93,7 +90,9 @@ Add both MCP servers to your project's `.cursor/mcp.json`:
 
 ```
 snapin-builder-plugin/   (this repo — public)
-├── plugin.json          — Plugin manifest
+├── .claude-plugin/
+│   ├── plugin.json      — Plugin manifest
+│   └── marketplace.json — Marketplace catalog
 ├── commands/            — Slash command definitions
 │   ├── build-snapin.md
 │   ├── generate-metadata.md
