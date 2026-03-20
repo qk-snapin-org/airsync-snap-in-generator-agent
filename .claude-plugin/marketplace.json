@@ -7,7 +7,7 @@
     {
       "name": "snapin-builder",
       "source": {
-        "source": "git",
+        "source": "url",
         "url": "https://github.com/qk-snapin-org/airsync-snap-in-generator-agent.git"
       },
       "description": "Build complete DevRev AirSync snap-ins from a single prompt.",
