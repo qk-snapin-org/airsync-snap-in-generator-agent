@@ -20,10 +20,13 @@ Read the skill at ${CLAUDE_PLUGIN_ROOT}/skills/snapin-builder/SKILL.md and follo
 
 Start by calling `scaffold_snapin` to clone the official template, then use targeted tools (`get_decision_guide`, `get_code_template`, `get_devrev_object_schema`, `validate_metadata`) to customize it. Only load the full guide with `build_snapin_guide` if you need comprehensive context.
 
+During research, check if the external system uses multi-datacenter/regional URLs (e.g., `.com`, `.eu`, `.in`). If yes, the manifest must use `[REGION]` placeholders in auth/token/refresh URLs and collect region as a keyring field. Call `get_decision_guide("authentication")` for the full pattern.
+
 CRITICAL RULES:
 1. NEVER hallucinate API structures — web search and fetch actual docs before writing any code
 2. ALWAYS scaffold from the official devrev/airdrop-template first
 3. ALWAYS validate metadata JSON with `validate_metadata` before finalizing
 4. Present engineering decisions to user and get confirmation before generating code
+5. For data-extraction.ts: ALWAYS call `get_code_template("data-extraction")` first and follow the Extractor class pattern EXACTLY — class with per-entity methods, switch/case orchestrator, shared emitError(). NEVER use flat inline blocks or emit DataExtractionProgress after each entity.
 
 User's request: $ARGUMENTS

@@ -48,6 +48,7 @@ Run the clone command and install dependencies.
 Before writing any code, web search the external system's API documentation:
 
 - Authentication method and header format
+- **Multi-datacenter / regional URLs** — Does the system use region-specific domains (e.g., Zoho: `.com`, `.eu`, `.in`, `.au`; Atlassian: `.atlassian.net` subdomains; ServiceNow: `instance.service-now.com`)? If yes, the manifest must use `[REGION]` placeholders in `auth_url`, `token_url`, `organization_data.url`, and `refresh.url`, and collect the region as a `field` in the keyring with `include_with_secret: true`. In code, build the base API URL dynamically from the region.
 - API endpoints for each entity (exact URLs, response shapes)
 - Pagination style and parameter names
 - Rate limits and how they're communicated
@@ -62,7 +63,7 @@ Call **`get_decision_guide`** for each decision you need to make:
 
 1. `get_decision_guide("authentication")` — OAuth2 vs PAT, manifest pattern
 2. `get_decision_guide("organization")` — How to identify the tenant
-3. `get_decision_guide("sync unit")` — What's the top-level sync container
+3. `get_decision_guide("sync unit")` — What's the top-level sync container? Look for a container-type object (projects, repos, workspaces, brands) that scopes other data. If none exists, use the organization/account itself as the sync unit (Pattern B).
 4. `get_decision_guide("static vs dynamic")` — Metadata approach
 5. `get_decision_guide("bidirectional")` — Extraction-only or bidirectional
 6. `get_decision_guide("pagination")` — Cursor, offset, or page-based
@@ -81,14 +82,24 @@ Present your decisions to the user and get confirmation before generating code.
 
 Use targeted tools to get specific patterns as you edit each file:
 
-- `get_code_template("oauth-manifest")` or `get_code_template("pat-manifest")` — for manifest.yaml
-- `get_code_template("data-extraction")` — for the extraction worker
-- `get_code_template("nested-children")` — if entities have per-parent children (comments, attachments)
-- `get_code_template("attachment-streaming")` — for the attachments worker
-- `get_code_template("loading-worker")` — if bidirectional
-- `get_code_template("pagination")` — for the pagination pattern matching the API
-- `get_code_template("stage-diagram")` — if entities have workflow states
-- `get_code_template("permissions")` — if entities have per-record sharing
+| Template | Use for |
+|---|---|
+| `get_code_template("manifest")` | Full manifest.yaml template with all sections |
+| `get_code_template("oauth-manifest")` | OAuth2 auth + manifest pattern |
+| `get_code_template("pat-manifest")` | API key/PAT auth + manifest pattern |
+| `get_code_template("api-service")` | API client class (axios, retry, rate limiting) |
+| `get_code_template("data-extraction")` | Extractor class + orchestrator + per-entity methods |
+| `get_code_template("sync-unit-extraction")` | Sync unit worker (Pattern A: API-listed, Pattern B: org) |
+| `get_code_template("data-normalization")` | Normalization functions (external → DevRev shape) |
+| `get_code_template("nested-children")` | Comments/attachments extracted inline with parent |
+| `get_code_template("attachment-streaming")` | Attachments worker + collection patterns |
+| `get_code_template("loading-worker")` | Bidirectional loading worker |
+| `get_code_template("validate-input")` | Input validation (verify connection, check config) |
+| `get_code_template("pagination")` | Cursor/offset/page pagination patterns |
+| `get_code_template("stage-diagram")` | Stage diagrams for workflow states |
+| `get_code_template("custom-links")` | Custom link types between entities |
+| `get_code_template("permissions")` | Permission fields + article scope patterns |
+| `get_code_template("article-permissions")` | Article-specific platform_groups + scope |
 
 Only call `build_snapin_guide` if you need the **full** guide. Prefer targeted tools to keep context lean.
 
@@ -102,9 +113,23 @@ Use the DevRev AirSync MCP (`chef-cli`) to:
 
 - ALWAYS scaffold from the official template first — never generate files from scratch
 - NEVER hallucinate API response structures — research first
-- Use the Extractor class pattern with switch/case orchestrator
-- Handle rate limits with `DataExtractionDelayed`
-- Handle errors with `DataExtractionError`
-- Nested children (comments, attachments per ticket) are extracted inline with parent
 - ALWAYS call `validate_metadata` before finalizing metadata JSON
 - Prefer targeted tools (`get_decision_guide`, `get_code_template`, `get_devrev_object_schema`) over loading full guides
+
+## data-extraction.ts: MANDATORY Structure
+
+**ALWAYS use `get_code_template("data-extraction")` before generating this file.** It returns the complete Extractor class pattern, entity order rules, and nested children pattern. Follow it exactly.
+
+### Required structure:
+1. **Class-based extractor** — `export class <System>Extractor` with constructor, `extractData()` orchestrator, per-entity private methods
+2. **`extractData()` orchestrator** — loops entities in dependency order via switch/case, calls per-entity methods that return `Promise<boolean>` (true=continue, false=stop)
+3. **Per-entity methods** — each handles its own pagination loop with `do/while`, pushes to repo, updates state, checks `adapter.isTimeout`
+4. **Nested children inline** — entities with per-parent children (comments, attachments) use combined methods like `extractTicketsWithComments()` that extract children inline during each page of parent pagination
+5. **Centralized `emitError()`** — checks rate limit → emits `DataExtractionDelayed`, otherwise emits `DataExtractionError`, always returns `false`
+6. **`processTask` wrapper** — instantiates the class, calls `extractData()`. `onTimeout` emits `DataExtractionProgress`
+
+### NEVER do this:
+- NEVER use flat inline if/else blocks for each entity — always use per-entity methods in a class
+- NEVER emit `DataExtractionProgress` and return after each entity or each page — only the `onTimeout` handler emits Progress
+- NEVER duplicate error handling per entity — use the shared `emitError()` method
+- NEVER copy-paste the same pagination/error/state block for each entity — extract into methods
