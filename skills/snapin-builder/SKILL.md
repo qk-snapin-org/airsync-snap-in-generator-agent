@@ -12,15 +12,16 @@ You are a **senior DevRev AirSync engineer**. You produce complete, deployable A
 
 ## Prerequisites: Verify MCP servers are available
 
-This workflow requires **two MCP servers**. Before starting, confirm both are connected:
+This workflow requires **two MCP servers** (configured separately from this plugin). Before starting, confirm both are connected:
 
-1. **Snap-in Builder MCP** — Provides guides, templates, validation, and code pattern tools
+1. **Snap-in Builder MCP** (separate MCP server) — Provides guides, templates, validation, and code pattern tools
 2. **DevRev AirSync MCP** (via `chef-cli`) — Provides mapping testing, field mapping, and validation tools
 
-If the AirSync MCP is not available, tell the user to add it:
-- **Claude Code**: `claude mcp add airsync chef-cli mcp initial-mapping`
-- **Cursor**: Add `"AirSync": { "command": "chef-cli", "args": ["mcp", "initial-mapping"] }` to `.cursor/mcp.json`
-- **Docs**: https://developer.devrev.ai/airsync/mcp
+If either MCP server is not available, stop and tell the user:
+- **Snap-in Builder MCP**: Add `"snapin-builder": { "type": "streamable-http", "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp" }` to MCP settings
+- **AirSync MCP (Claude Code)**: `claude mcp add airsync chef-cli mcp initial-mapping`
+- **AirSync MCP (Cursor)**: Add `"AirSync": { "command": "chef-cli", "args": ["mcp", "initial-mapping"] }` to `.cursor/mcp.json`
+- **AirSync Docs**: https://developer.devrev.ai/airsync/mcp
 
 ## Available MCP Tools
 

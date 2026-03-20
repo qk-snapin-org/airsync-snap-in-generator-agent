@@ -6,24 +6,24 @@ This is the **public** plugin — it contains slash commands, skills, and workfl
 
 ## Prerequisites
 
-You need **two MCP servers** for the complete snap-in development workflow:
+This plugin provides the **workflow** (commands + skills). You also need **two MCP servers** configured separately:
 
-1. **Snap-in Builder MCP** — Provides guides, templates, validation, and code pattern tools
+1. **Snap-in Builder MCP** (private server) — Provides guides, templates, validation, and code pattern tools
 2. **DevRev AirSync MCP** (via `chef-cli`) — Provides metadata testing, field mapping, and validation tools
 
 > See the [official DevRev AirSync MCP docs](https://developer.devrev.ai/airsync/mcp) for full details on the AirSync MCP server.
 
 ## Setup
 
-### Claude Code
+### Claude Code (full experience: plugin + both MCP servers)
 
-**1. Install the plugin**
+**1. Install the plugin** (provides `/build-snapin`, `/generate-metadata`, `/search-guide`)
 
 ```bash
 /plugin install --github your-org/snapin-builder-plugin
 ```
 
-**2. Add the Snap-in Builder MCP server**
+**2. Add the Snap-in Builder MCP server** (provides 9 tools)
 
 Add to your `~/.claude/settings.json`:
 
@@ -32,13 +32,13 @@ Add to your `~/.claude/settings.json`:
   "mcpServers": {
     "snapin-builder": {
       "type": "streamable-http",
-      "url": "https://your-server.com/mcp"
+      "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp"
     }
   }
 }
 ```
 
-**3. Add the DevRev AirSync MCP**
+**3. Add the DevRev AirSync MCP** (provides mapping validation)
 
 ```bash
 claude mcp add airsync chef-cli mcp initial-mapping
@@ -46,7 +46,7 @@ claude mcp add airsync chef-cli mcp initial-mapping
 
 Then use: `/build-snapin Wrike`
 
-### Cursor
+### Cursor (MCP tools only, no plugin commands)
 
 Add both MCP servers to your project's `.cursor/mcp.json`:
 
@@ -55,7 +55,7 @@ Add both MCP servers to your project's `.cursor/mcp.json`:
   "mcpServers": {
     "snapin-builder": {
       "type": "streamable-http",
-      "url": "https://your-server.com/mcp"
+      "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp"
     },
     "AirSync": {
       "command": "chef-cli",
@@ -65,7 +65,7 @@ Add both MCP servers to your project's `.cursor/mcp.json`:
 }
 ```
 
-> Note: Cursor users get the MCP tools but not the plugin commands/skills.
+> Cursor users get the MCP tools but not the slash commands or skill workflow. They call tools like `build_snapin_guide` and `validate_metadata` directly.
 
 ## Available Commands
 

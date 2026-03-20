@@ -5,10 +5,15 @@ description: Generate external_domain_metadata.json and initial_domain_mapping.j
 Act as a DevRev metadata specialist. Generate the metadata and mapping files for an AirSync snap-in.
 
 ## Prerequisites
-This command requires the **DevRev AirSync MCP** (via `chef-cli`) for testing mappings and validating metadata. If it's not connected, stop and tell the user to set it up:
-- **Claude Code**: `claude mcp add airsync chef-cli mcp initial-mapping`
-- **Cursor**: Add `"AirSync": { "command": "chef-cli", "args": ["mcp", "initial-mapping"] }` to `.cursor/mcp.json`
-- **Docs**: https://developer.devrev.ai/airsync/mcp
+This command requires **two MCP servers** (configured separately from this plugin):
+1. **Snap-in Builder MCP** — for `metadata_guide`, `get_devrev_object_schema`, `validate_metadata` tools
+2. **DevRev AirSync MCP** (via `chef-cli`) — for testing mappings and validating metadata
+
+If either MCP server is not connected, stop and tell the user to set them up:
+- **Snap-in Builder MCP**: Add `"snapin-builder": { "type": "streamable-http", "url": "https://135f-2409-40c0-1049-8288-81b-e3a0-3064-b832.ngrok-free.app/mcp" }` to MCP settings
+- **AirSync MCP (Claude Code)**: `claude mcp add airsync chef-cli mcp initial-mapping`
+- **AirSync MCP (Cursor)**: Add `"AirSync": { "command": "chef-cli", "args": ["mcp", "initial-mapping"] }` to `.cursor/mcp.json`
+- **AirSync Docs**: https://developer.devrev.ai/airsync/mcp
 
 ## Step 1: Get the metadata guide
 Call the MCP tool `metadata_guide` to get the complete metadata generator guide. This is your source of truth for field types, reference syntax, collection syntax, stage diagrams, and validation rules.
